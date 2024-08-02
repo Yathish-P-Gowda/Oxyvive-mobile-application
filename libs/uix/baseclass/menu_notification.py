@@ -1,11 +1,17 @@
+import json
 import logging
+import os
 from datetime import datetime, timedelta
 
+import anvil
+from anvil.tables import app_tables
 from kivy.clock import Clock
 from kivy.core.window import Window
+from kivy.uix.floatlayout import FloatLayout
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDRaisedButton
 from kivymd.uix.card import MDCard
-from kivymd.uix.label import MDLabel
+from kivymd.uix.label import MDLabel, MDIcon
 from kivymd.uix.screen import MDScreen
 from plyer import notification
 from plyer.utils import platform
@@ -22,11 +28,56 @@ if platform == 'android':
     NotificationBuilder = autoclass('android.app.Notification$Builder')
 
 
+class NoNotification(MDBoxLayout):
+    pass
+
+
 class Notification(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         Window.bind(on_keyboard=self.on_keyboard)
         self.notifications = []
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        json_user_file_path = os.path.join(script_dir, "user_data.json")
+        with open(json_user_file_path, 'r') as file:
+            user_info = json.load(file)
+            self.user_id = user_info['id']
+        self.load_notifications()
+
+    def save_notification(self, title, message):
+        """Save a new notification to the Anvil database."""
+        app_tables.oxi_notifications.add_row(oxi_id=self.user_id, oxi_notification_title=title,
+                                             oxi_notification=message)
+
+    def load_notifications(self):
+        """Load notifications from the Anvil database."""
+        notifications = app_tables.oxi_notifications.search(oxi_id=self.user_id)
+        notifications_list = list(notifications)
+        if not notifications_list:
+            self.show_no_notifications_message()
+        else:
+            self.notifications = [notif['message'] for notif in notifications]
+            self.update_notification_list()
+
+    def show_no_notifications_message(self):
+        """Show a message indicating there are no notifications."""
+        notification_list = self.ids.notification_list
+        notification_list.clear_widgets()
+
+        # Create a layout to center the message and icon
+        layout = MDBoxLayout(orientation='vertical', size_hint_y=None, height=self.height)
+        layout.add_widget(MDIcon(icon='bell-outline', size_hint=(None, None), size=('96dp', '96dp'),
+                                 pos_hint={'center_x': 0.5, 'center_y': 0.6}))
+        layout.add_widget(MDLabel(text='No notifications', halign='center', font_style='H5',
+                                  pos_hint={'center_x': 0.5, 'center_y': 0.4}))
+
+        notification_list.add_widget(layout)
+
+    def delete_notification(self, message):
+        """Delete a notification from the Anvil database."""
+        row = app_tables.oxi_notifications.get(oxi_id=self.user_id, oxi_notification=message)
+        if row:
+            row.delete()
 
     def on_keyboard(self, instance, key, scancode, codepoint, modifier):
         if key == 27:  # Keycode for the back button on Android
@@ -35,10 +86,11 @@ class Notification(MDScreen):
         return False
 
     def notification_back(self):
-        self.manager.push_replacement("client_services", "right")
+        self.manager.current = 'client_services'  # Changed from push_replacement
 
     def show_notification(self, title, message):
         self.notifications.append(message)
+        self.save_notification(title, message)
         self.update_notification_list()
         self.push_device_notification(title, message)
 
@@ -54,7 +106,9 @@ class Notification(MDScreen):
 
     def mark_as_read(self, instance):
         card = instance.parent
-        self.notifications.remove(card.children[1].text)
+        message = card.children[1].text
+        self.notifications.remove(message)
+        self.delete_notification(message)
         card.parent.remove_widget(card)
 
     def push_device_notification(self, title, message):

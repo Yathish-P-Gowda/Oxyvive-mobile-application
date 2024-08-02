@@ -170,6 +170,11 @@
         "object": "DetailsScreen()",
         "kv": "libs/uix/kv/booking_details.kv"
     },
+    "client_settings": {
+        "import": "from libs.uix.baseclass.client_settings import Settings",
+        "object": "Settings()",
+        "kv": "libs/uix/kv/client_settings.kv"
+    },
     "Screen_name": {
         "import": "",
         "object": "()",
