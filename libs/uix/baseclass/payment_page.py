@@ -19,6 +19,7 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import MDScreen
 from server import Server
+from kivymd.uix.button import MDRaisedButton
 
 
 class Payment(MDScreen):
@@ -44,6 +45,8 @@ class Payment(MDScreen):
         self.change()
         self.servicer_details()
         self.user_details()
+        self.data_stored = False
+        self.dialog_opened = False
 
     def on_keyboard(self, instance, key, scancode, codepoint, modifier):
         if key == 27:  # Keycode for the back button on Android
@@ -95,7 +98,9 @@ class Payment(MDScreen):
                     oxi_service_type=self.service_type
                 )
                 self.show_validation_dialog(
-                    "Your slot is successfully booked. You will receive an instant response from Oxivive.")
+                    "Your slot is successfully booked. You will receive an instant response from Oxivive.",
+                    self.on_payment_success
+                )
 
                 # Sending email after successful booking
                 email_subject = "Booking Confirmation From Oxivive"
@@ -110,23 +115,29 @@ class Payment(MDScreen):
             print(e)
             self.show_validation_dialog("Error processing user data")
 
-    def show_validation_dialog(self, message):
+
+    def show_validation_dialog(self, message, callback=None):
         if self.dialog_opened:
             return
         self.dialog_opened = True  # Set the flag to indicate dialog is shown
-        Clock.schedule_once(lambda dt: self._create_dialog(message), 0)
+        Clock.schedule_once(lambda dt: self._create_dialog(message, callback), 0)
 
-    def _create_dialog(self, message):
+    def _create_dialog(self, message, callback):
         dialog = MDDialog(
             text=f"{message}",
             elevation=0,
-            buttons=[MDFlatButton(text="OK", on_release=lambda x: self._close_dialog(dialog))],
+            buttons=[MDRaisedButton(text="OK", on_release=lambda x: self._close_dialog(dialog, callback))],
         )
         dialog.open()
 
-    def _close_dialog(self, dialog):
+    def _close_dialog(self, dialog, callback):
         dialog.dismiss()
         self.dialog_opened = False  # Reset the flag after closing dialog
+        if callback:
+            callback()
+
+    def on_payment_success(self):
+        self.manager.push_replacement('client_services')
 
     def servicer_details(self):
         details = app_tables.oxiclinics.get(oxiclinics_id=self.servicer_id)
@@ -492,4 +503,3 @@ class Payment(MDScreen):
             user_info = json.load(file)
 
             self.ids.username.text = f"{user_info.get('username')}"
-
