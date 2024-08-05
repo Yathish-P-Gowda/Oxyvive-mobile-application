@@ -97,6 +97,7 @@ class Login(MDScreen):
             if user_sqlite is not None:
                 password_value2 = bcrypt.checkpw(entered_password.encode('utf-8'),
                                                  user_sqlite[3].encode('utf-8'))
+            self.ids.login_password.helper_text = "In-Correct Password"
             print('Password : ', password_value)
             print('Password : ', password_value2)
             if user_type == 'client':
@@ -130,6 +131,8 @@ class Login(MDScreen):
                         "Login successful!",
                         on_ok=lambda: self.manager.push('client_services')
                     )
+                    self.ids.login_email.text = ''
+                    self.ids.login_password.text = ''
 
             elif user_type == 'service provider':
                 if password_value:
@@ -162,18 +165,15 @@ class Login(MDScreen):
 
                     with open(profile_image_path, "wb") as profile_image_file:
                         profile_image_file.write(profile_texture)
-
                     screen.ids.profile_image.source = profile_image_path
         else:
             self.ids.login_email.error = True
-            self.show_popup("Invalid email or password")
-            self.ids.login_password.error = True
+            self.ids.login_email.helper_text = "In-Correct email"
+            self.ids.login_email.error = True
 
-        if not password_value and not password_value2:
-            self.show_popup("Please enter the correct credentials")
 
-        self.ids.login_email.text = ''
-        self.ids.login_password.text = ''
+
+
 
     user_input = StringProperty('')
     otp_value = StringProperty('')
@@ -215,6 +215,7 @@ class Login(MDScreen):
             )
         except Exception as e:
             self.show_popup("Failed to send SMS, try again!")
+
 
     def show_popup(self, message, on_ok=None):
         popup_content = BoxLayout(orientation='vertical', padding=10, spacing=10)
@@ -357,6 +358,15 @@ class Login(MDScreen):
             self.show_popup("OTP verified successfully")
         else:
             self.show_popup("Invalid OTP. Please try again.")
+
+    def helper(self):
+        self.ids.login_email.helper_text = ""
+        self.ids.login_password.helper_text = ""
+    def forgot_password(self):
+        self.manager.load_screen("forgot_password")
+        self.manager.push_replacement("forgot_password")
+        self.ids.login_email.text = ''
+        self.ids.login_password.text = ''
 
 
 

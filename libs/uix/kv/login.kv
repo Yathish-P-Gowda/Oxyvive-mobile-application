@@ -88,6 +88,7 @@
                     write_tab: False
                     line_color_focus: 1, 0, 0, 1
                     hint_text_color_focus: 1, 0, 0, 1
+                    on_focus: root.helper()
 
             MDFloatLayout:
                 size_hint: .7, .12
@@ -108,7 +109,7 @@
                     helper_text: ''
                     helper_text_mode: 'on_error'
                     required: True
-                    pos_hint: {"center_x": .5, "center_y": .7}
+                    pos_hint: {"center_x": .5, "center_y": .5}
                     cursor_width: "2sp"
                     multiline: False
                     keyboard_suggestions: True
@@ -116,6 +117,7 @@
                     write_tab: False
                     line_color_focus: 1, 0, 0, 1
                     hint_text_color_focus: 1, 0, 0, 1
+                    on_focus: root.helper()
 
                 MDIconButton:
                     id: show_password_button
@@ -133,7 +135,7 @@
                 text: "LOGIN"
                 font_size: "18sp"
                 size_hint: .7, .12
-                pos_hint: {"center_x": .50, "center_y": .55}
+                pos_hint: {"center_x": .50, "center_y": .45}
                 background_color: 0, 0, 0, 0
                 font_name: "Roboto"
                 on_release:
@@ -148,16 +150,16 @@
 
             MDTextButton:
                 text: "Forgot Password?"
-                pos_hint: {"center_x": .5, "center_y": .42}
+                pos_hint: {"center_x": .5, "center_y": .32}
                 color: 1, 0, 0, 1
                 font_size: "12sp"
                 font_name: "Roboto"
-                on_release: root.manager.push("forgot_password")
+                on_release: root.forgot_password()
 
             MDLabel:
                 text: "or"
                 color: 0.29, 0.29, 0.29, 1
-                pos_hint: {"center_y": .37}
+                pos_hint: {"center_y": .27}
                 font_size: "13sp"
                 font_name: "Roboto"
                 halign: "center"
@@ -165,17 +167,17 @@
             MDFloatLayout:
                 md_bg_color: 0.7, 0.7, 0.7, 1
                 size_hint: .3, .002
-                pos_hint: {"center_x": .3, "center_y": .37}
+                pos_hint: {"center_x": .3, "center_y": .27}
             MDFloatLayout:
                 md_bg_color: 0.7, 0.7, 0.7, 1
                 size_hint: .3, .002
-                pos_hint: {"center_x": .7, "center_y": .37}
+                pos_hint: {"center_x": .7, "center_y": .27}
 
             MDRoundFlatIconButton:
                 text: "Login with OTP"
                 icon: "key"
                 icon_color : 1,0,0,1
-                pos_hint: {'center_x': 0.5, 'center_y': 0.27}
+                pos_hint: {'center_x': 0.5, 'center_y': 0.17}
                 text_color: 1, 0, 0, 1  # Red color for text
                 line_color: 1, 0, 0, 1  # Red color for border
                 on_release: root.send_otp()

@@ -142,6 +142,7 @@ class Signup(MDScreen):
         elif not email or not re.match(email_regex, email):
             self.ids.signup_email.error = True
             self.ids.signup_email.helper_text = "Invalid Email"
+
         elif not is_valid_password:
             self.ids.signup_password.error = True
             self.ids.signup_password.helper_text = password_error_message
@@ -178,6 +179,7 @@ class Signup(MDScreen):
                     # Check if email and phone already exist in the database
                     existing_email = app_tables.oxi_users.get(oxi_email=email)
                     existing_phone = app_tables.oxi_users.get(oxi_phone=float(phone))
+                    existing_pan_card_no = app_tables.oxi_users.get(oxi_pan_card_no=pan_card_no)
 
                     if existing_email:
                         self.ids.signup_email.helper_text = "Email already registered"
@@ -284,3 +286,8 @@ class Signup(MDScreen):
         code = prefix + random_numbers
 
         return code
+    def helper(self):
+        self.ids.signup_email.helper_text = ""
+        self.ids.signup_phone.helper_text = ""
+        self.ids.signup_pan_card_no.helper_text = ""
+

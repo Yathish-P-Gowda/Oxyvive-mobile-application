@@ -58,6 +58,7 @@
                 required: True
                 line_color_focus: [1, 0, 0, 1]
                 hint_text_color_focus: [1, 0, 0, 1]
+                on_focus: root.helper()
                 canvas.before:
                     Color:
                         rgba: [1, 0, 0, 1]
@@ -116,6 +117,8 @@
                 input_type: "number"
                 mode: "rectangle"
                 required: True
+                on_focus: root.helper()
+
                 line_color_focus: [1, 0, 0, 1]
                 hint_text_color_focus: [1, 0, 0, 1]
                 canvas.before:
@@ -162,6 +165,8 @@
                 mode: "rectangle"
                 required: True
                 line_color_focus: [1, 0, 0, 1]
+                on_focus: root.helper()
+
                 hint_text_color_focus: [1, 0, 0, 1]
                 canvas.before:
                     Color:
